@@ -10,6 +10,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<BookService>();
 builder.Services.AddSingleton<AuthorService>();
+builder.Services.AddSingleton<MongoClientConnection>();
 
 builder.Services.AddSwaggerGen();
 var app = builder.Build();

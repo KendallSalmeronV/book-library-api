@@ -7,7 +7,7 @@ namespace book_library_api.Entities
     {
         [BsonId]
         [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         [BsonElement("title")]
         public required string Title { get; set; }
         [BsonElement("published")]

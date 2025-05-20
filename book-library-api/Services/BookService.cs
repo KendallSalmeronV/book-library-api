@@ -5,55 +5,34 @@ namespace book_library_api.Services
 {
     public class BookService
     {
-        private readonly MongoClientConnection _mongoClientConnection;
+        private readonly IMongoCollection<Book> _booksCollection;
 
-        public BookService()
+        public BookService(MongoClientConnection mongoClientConnection)
         {
-            _mongoClientConnection = new MongoClientConnection();
-        }
-
-        public async Task<List<Book>> GetBooks()
-        {
-            var client = _mongoClientConnection.GetMongoClient();
+            var client = mongoClientConnection.GetMongoClient();
             var database = client.GetDatabase("book-library");
-            var collection = database.GetCollection<Book>("books");
-            var books = await collection.Find(_ => true).ToListAsync();
-            return books;
+            _booksCollection = database.GetCollection<Book>("books");
         }
 
-        public async Task<Book> GetBookById(string id)
-        {
-            var client = _mongoClientConnection.GetMongoClient();
-            var database = client.GetDatabase("book-library");
-            var collection = database.GetCollection<Book>("books");
-            var book = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
-            return book;
-        }
+        public async Task<List<Book>> GetBooks() =>
+            await _booksCollection.Find(_ => true).ToListAsync();
+
+        public async Task<Book?> GetBookById(string id) =>
+            await _booksCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
         public async Task<Book> CreateBook(Book book)
         {
-            var client = _mongoClientConnection.GetMongoClient();
-            var database = client.GetDatabase("book-library");
-            var collection = database.GetCollection<Book>("books");
-            await collection.InsertOneAsync(book);
+            await _booksCollection.InsertOneAsync(book);
             return book;
         }
 
         public async Task<Book> UpdateBook(string id, Book book)
         {
-            var client = _mongoClientConnection.GetMongoClient();
-            var database = client.GetDatabase("book-library");
-            var collection = database.GetCollection<Book>("books");
-            await collection.ReplaceOneAsync(x => x.Id == id, book);
+            await _booksCollection.ReplaceOneAsync(x => x.Id == id, book);
             return book;
         }
 
-        public async Task DeleteBook(string id)
-        {
-            var client = _mongoClientConnection.GetMongoClient();
-            var database = client.GetDatabase("book-library");
-            var collection = database.GetCollection<Book>("books");
-            await collection.DeleteOneAsync(x => x.Id == id);
-        }
+        public async Task DeleteBook(string id) =>
+            await _booksCollection.DeleteOneAsync(x => x.Id == id);
     }
 }
